@@ -1,4 +1,4 @@
-    var myId = Util.guid(), myConn;
+    var myId = uuid.v4(), myConn;
     var connectedPeers = {};
     var dataCache = {};
     
