@@ -1,7 +1,9 @@
-(function(exports) {
-    // General Purpose Utility Functions
-    // ---------------------------------
-    
+// General Purpose Utility Functions
+// ---------------------------------
+
+// Read [annotated source code](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/p2p/Util.js)
+
+(function(exports) {    
     // Creates a namespace based on a string
     //   If separator is null, assumes . for separators
     //   If container is null, assumes default container (i.e. window)
