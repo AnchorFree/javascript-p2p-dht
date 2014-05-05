@@ -15,7 +15,36 @@
 </script>
     </head>
     <body>
-        <div class="plog" style="color:#FF7500;text-shadow:none;padding:15px;background:#eee"><strong>Protocol status</strong>:<br></div>
-        <div class="log" style="color:#FF7500;text-shadow:none;padding:15px;background:#eee"><strong>Connection status</strong>:<br></div>
+        <div style="width:100%;margin:0;padding:0;vertical-align: top;">
+            <div id="data" style="width:25%;display:inline-block;">
+                <h1>Data <a href="#" onclick="for (var i=0;i<100;i++) { put(uuid.v4(), 'item ' + i )}; return false;">+ 100 items</a></h1>
+                <table style="width:100%;border: 1px solid #000;">
+                    <thead>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div id="peers" style="width:25%;display:inline-block;vertical-align: top;">
+                <h1>Peers</h1>
+                <table style="width:100%;border: 1px solid #000;">
+                    <thead>
+                        <th>Peer</th>
+                        <th>Id</th>
+                        <td>Type</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div id="plog" style="width:25%;display:inline-block;vertical-align: top;">
+                <h1>Protocol status</h1>
+            </div>
+            <div id="log" style="width:23%;display:inline-block;vertical-align: top;">
+                <h1>Connection status</h1>
+            </div>
+        </div>
     </body>
 </html>

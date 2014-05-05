@@ -27,9 +27,9 @@ function PeerMap(selfId, config) {
                     result.push(bytes1[i] ^ bytes2[i])
                 }
 
-                return result.reduce(function(a, b) {
-                    return a + b
-                })
+                return result.reduce(function(a, b, i, arr) {
+                                    return a + (b * Math.pow(10,  i))
+                                }, 0);
             }
         };
     this.selfId = selfId || '';
@@ -37,7 +37,6 @@ function PeerMap(selfId, config) {
 
 PeerMap.prototype.peerFound = function(peerId, referrer, connId) {
     // Adds a neighbor to the neighbor list. If the bag is full, the id zero or the same as our id, the neighbor is not added.
-    
     var firstHand = typeof referrer === 'undefined' || !this.config.peerVerification,
         secondHand = peerId == referrer,
         thirdHand = !firstHand && !secondHand,
@@ -65,12 +64,14 @@ PeerMap.prototype.peerFound = function(peerId, referrer, connId) {
     // Handle a notification about an existing verified peer
     if (this.verifiedPeers.hasOwnProperty(peerId)) {
         this.verifiedPeers[peerId].successfullyChecked();
+        
+        this.verifiedPeers[peerId].peerId = this.verifiedPeers[peerId].peerId || peerId;
 
         return;
     }
     
     // New first-hand peer information
-    if (firstHand && (Object.keys(this.verifiedPeers).length < this.config.bagSizeVerified)) {
+    if (!thirdHand && (Object.keys(this.verifiedPeers).length < this.config.bagSizeVerified)) {
         stat = new PeerStatistics(connId);
 
         stat.successfullyChecked();
@@ -94,7 +95,7 @@ PeerMap.prototype.peerFound = function(peerId, referrer, connId) {
     }
 }
 
-PeerMap.prototype.peerFailed = function (peerId, reason) {
+PeerMap.prototype.peerFailed = function(peerId, reason) {
     // Remove a peer from the list. In order to not reappear, the node is put for a certain time in a cache list to keep the node removed.
     // Valid reasons are Timeout, ProbablyOffline, Shutdown, Exception
     
@@ -159,6 +160,30 @@ PeerMap.prototype.nearPeers = function(peerId, atLeast, peerMap) {
     tmp.map(function (x) { result.push(x[1]); });
     
     return result;
+}
+
+PeerMap.prototype.nearestPeer = function(peerId, peerMap) {
+    var result = [], tmp;
+    
+    if (typeof peerMap === 'undefined') {
+        peerMap = {};
+        
+        for (var property in this.verifiedPeers)
+            peerMap[property] = this.verifiedPeers[property];
+        
+        for (var property in this.overflowPeers)
+            peerMap[property] = this.overflowPeers[property];
+    }
+    
+    for (var prop in peerMap) {
+        if( peerMap.hasOwnProperty( prop ) ) {
+            result.push([[this.config.distanceCalc(uuid.parse(peerId), uuid.parse(prop))], peerMap[prop].peerId]);
+        } 
+    }
+    
+    result.sort();
+    
+    return result[0];
 }
 
 PeerMap.prototype.size = function() {
