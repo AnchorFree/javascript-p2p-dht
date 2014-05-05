@@ -23,6 +23,7 @@
     P2P.Version = '1.0';
     
     // Utility Singleton
+    // -----------------
     P2P.Util = {
         namespace: namespace;
         
