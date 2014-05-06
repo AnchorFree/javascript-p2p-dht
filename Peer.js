@@ -20,11 +20,11 @@
         ]} /* Sample servers, please use appropriate ones */
     });
 
-    var peerMap = new PeerMap(myId);
+    var peerMap = new P2P.PeerMap(myId);
     var tracker = peer.connect('TRACKER', { metadata: { id: myId }});
 
     peer.on('open', function(id) {
-        Util.log('Connected established as ' + id + ' with id ' + myId);
+        P2P.Util.log('Connected established as ' + id + ' with id ' + myId);
 
         myConn = id;
     });
@@ -32,13 +32,13 @@
     peer.on('connection', handlePeer);
 
     function handlePeer(conn) {
-        Util.log('Connection from : ' + conn.peer);
+        P2P.Util.log('Connection from : ' + conn.peer);
 
         if (conn.label === 'peer') {
             connectedPeers[conn.peer] = conn;
 
             conn.on('data', function (data) {
-                Util.log('Data from : ' + conn.peer + ' : ' + JSON.stringify(data));
+                P2P.Util.log('Data from : ' + conn.peer + ' : ' + JSON.stringify(data));
 
                 if (typeof data === 'object') {
                     if (data.hasOwnProperty('q')) {
@@ -52,26 +52,26 @@
                             // Peer verified... announce it to my other peers (except itself)
                             for (var property in peerMap.verifiedPeers) {
                                 if (peerMap.verifiedPeers.hasOwnProperty(property)) {
-                                    if (typeof connectedPeers[peerMap.verifiedPeers[nearest].peerId] === 'undefined') {
-                                        peerMap.peerFailed(peerMap.verifiedPeers[nearest].peerId, 'ProbablyOffline');
+                                    if (typeof connectedPeers[peerMap.verifiedPeers[data.id].peerId] === 'undefined') {
+                                        peerMap.peerFailed(peerMap.verifiedPeers[data.id].peerId, 'ProbablyOffline');
 
-                                        delete connectedPeers[peerMap.verifiedPeers[nearest].peerId];
+                                        delete connectedPeers[peerMap.verifiedPeers[data.id].peerId];
                                     } else {
-                                        connectedPeers[peerMap.verifiedPeers[property].peerId].send({q: 'announce_peer', id: data.id, conn: conn.peer });
+                                        connectedPeers[peerMap.verifiedPeers[data.id].peerId].send({q: 'announce_peer', id: data.id, conn: conn.peer });
                                     }
                                 }
                             }
                         } else if (data.q === 'find_peer') {
                             // Do I have this key?
                             if (dataCache.hasOwnProperty(data.id)) {
-                                Util.log('Data found for key ' + data.id);
+                                P2P.Util.log('Data found for key ' + data.id);
 
                                 conn.send({q: 'peer_found', data: dataCache[data.id]});
                             } else {
                                 // Do I know of a peer that is closer to this key?
                                 var neighbor = peerMap.nearestPeer(data.id);
 
-                                Util.log('Redirecting to peer ' + neighbor[1]);
+                                P2P.Util.log('Redirecting to peer ' + neighbor[1]);
                                 conn.send({q: 'peer_found', id: data.id, redirect: neighbor[1]});
                             }
                         } else if (data.q === 'peer_found') {
@@ -79,9 +79,9 @@
                                 connectToPeer(data.redirect, {q: 'find_peer', id: data.id });
                             } else if (data.hasOwnProperty('data')) {
                                 // Data found!
-                                Util.log('Data found: ' + data.data);
+                                P2P.Util.log('Data found: ' + data.data);
                             } else {
-                                Util.log('Data not found anywhere on the network');
+                                P2P.Util.log('Data not found anywhere on the network');
                             }
                         } else if (data.q === 'announce_peer') {
                             // Do I have any keys that are closer to the new peer?
@@ -103,7 +103,7 @@
             });
 
             conn.on('close', function () {
-                Util.log('Connection closed with ' + conn.peer);
+                P2P.Util.log('Connection closed with ' + conn.peer);
 
                 //peerMap.peerFailed(conn.peer, )
 
@@ -117,24 +117,20 @@
     }
 
     tracker.on('open', function() {
-        Util.log('Connected to tracker. Requesting bootstrap.');
+        P2P.Util.log('Connected to tracker. Requesting bootstrap.');
 
         tracker.send('bootstrap');
     });
 
     tracker.on('data', function(data) {
-        Util.log('Received bootstrap. ' + data);
+        P2P.Util.log('Received bootstrap. ' + data);
 
         if (data instanceof Array) {
             data.forEach(function(element) {
                 connectToPeer(element, {q: 'ping', id: myId});
             });
         } else {
-            Util.log('No bootstrap received.  Retry in 10 seconds');
-
-            setTimeout(function() {
-                tracker.send('bootstrap');
-            }, 10000);
+            P2P.Util.log('No bootstrap received.  Retry in 10 seconds');
         }
 
         setInterval(function() {
@@ -155,7 +151,7 @@
 
         // TODO: Check peer statistics before connecting
         if (myConn !== peerConnId) {
-            Util.log('Connecting to peer : ' + peerConnId);
+            P2P.Util.log('Connecting to peer : ' + peerConnId);
 
             tmp = peer.connect(peerConnId, {
                 label: 'peer',
@@ -193,28 +189,28 @@
     function maintenance() {
         var myParsedId = uuid.parse(myId), nearest;
 
-        if (Object.keys(connectedPeers).length < 4) {
-            Util.log('Rebalancing failed. No enough peers.  Attempting to bootstrap again.');
+        /*if (Object.keys(connectedPeers).length < 4) {
+            P2P.Util.log('Rebalancing failed. No enough peers.  Attempting to bootstrap again.');
 
             tracker.send('bootstrap');
-        }
+        }*/
 
-        Util.log('Rebalancing.');
+        P2P.Util.log('Rebalancing.');
 
         for (var key in dataCache) {
             // Find peer that is closest to the key in question
 
             var x = Object.keys(peerMap.verifiedPeers).map(function (x) {
-                return [x, peerMap.config.distanceCalc(uuid.parse(x), uuid.parse(key))]
+                return [x, peerMap.config.distanceCalc(uuid.parse(x), uuid.parse(key))];
             });
 
             // Add ourself as a peer in case we are the closest
             x.unshift([myId, peerMap.config.distanceCalc(myParsedId, uuid.parse(key))]);
 
-            nearest = x.sort(function (a, b) { return a[1]>b[1] })[0][0];
+            nearest = x.sort(function (a, b) { return a[1]>b[1]; })[0][0];
 
             if (nearest !== myId) {
-                Util.log('Sending key ' + key + ' to ' + peerMap.verifiedPeers[nearest].peerId);
+                P2P.Util.log('Sending key ' + key + ' to ' + peerMap.verifiedPeers[nearest].peerId);
 
                 if (typeof connectedPeers[peerMap.verifiedPeers[nearest].peerId] === 'undefined') {
                     delete connectedPeers[peerMap.verifiedPeers[nearest].peerId];

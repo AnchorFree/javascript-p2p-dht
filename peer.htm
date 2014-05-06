@@ -6,7 +6,6 @@
         </title>
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
         <script src="http://cdn.peerjs.com/0.3.8/peer.js" type="text/javascript"></script>
-        <script type="text/javascript" src="lib/PubSubJS.js"></script>
         <script type="text/javascript" src="lib/Uuid.js"></script>
         <script type="text/javascript" src="p2p/Util.js"></script>
         <script type="text/javascript" src="p2p/PeerStatistics.js"></script>
@@ -17,7 +16,7 @@
     <body>
         <div style="width:100%;margin:0;padding:0;vertical-align: top;">
             <div id="data" style="width:25%;display:inline-block;">
-                <h1>Data <a href="#" onclick="for (var i=0;i<100;i++) { put(uuid.v4(), 'item ' + i )}; return false;">+ 100 items</a></h1>
+                <h1>Data <a title="Click to create 100 items which will be distributed as a demo." href="#" onclick="for (var i=0;i<100;i++) { put(uuid.v4(), 'item ' + i )}; return false;">+ 100 items</a></h1>
                 <table style="width:100%;border: 1px solid #000;">
                     <thead>
                         <th>Key</th>
@@ -33,17 +32,17 @@
                     <thead>
                         <th>Peer</th>
                         <th>Id</th>
-                        <td>Type</th>
+                        <th>Type</th>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
             </div>
             <div id="plog" style="width:25%;display:inline-block;vertical-align: top;">
-                <h1>Protocol status</h1>
+                <h1>P2P Protocol status</h1>
             </div>
             <div id="log" style="width:23%;display:inline-block;vertical-align: top;">
-                <h1>Connection status</h1>
+                <h1>WebRTC Connection status</h1>
             </div>
         </div>
     </body>

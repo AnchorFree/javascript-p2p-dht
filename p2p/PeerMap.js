@@ -88,7 +88,7 @@
 
         // New first-hand peer information
         if (!thirdHand && (Object.keys(this.verifiedPeers).length < this.config.bagSizeVerified)) {
-            stat = new PeerStatistics(connId);
+            stat = new exports.P2P.PeerStatistics(connId);
 
             stat.successfullyChecked();
 
@@ -97,7 +97,7 @@
 
             exports.P2P.Util.log('PeerTracker added peer ' + peerId + ' reason : first-hand knowledge');
         } else {
-            stat = this.overflowPeers[peerId] || new PeerStatistics(connId);
+            stat = this.overflowPeers[peerId] || new exports.P2P.PeerStatistics(connId);
 
             if (firstHand) {
                 stat.successfullyChecked();
