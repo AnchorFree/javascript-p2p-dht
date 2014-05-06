@@ -149,11 +149,11 @@
     };
 
     /* Return peers that are closest to the peerId that is provided.
-     *  - peerId - return peers that are closest to this uuid
-     *  - atLeast - (optional) try to get this number of peers in the returned list
-     *  -- NOTE: The result might be less peers than requested
-     *  -- If there are not enough peers that are verified to fulfill the request, pull peers from overflow list as well
-     *  - peerMap - (optional) which peermap contains the list of peers to search. Defaults to verified and overflow
+     * * peerId - return peers that are closest to this uuid
+     * * atLeast - (optional) try to get this number of peers in the returned list
+     * ** NOTE: The result might be less peers than requested
+     * ** If there are not enough peers that are verified to fulfill the request, pull peers from overflow list as well
+     * * peerMap - (optional) which peermap contains the list of peers to search. Defaults to verified and overflow
      */
     exports.P2P.PeerMap.prototype.nearPeers = function(peerId, atLeast, peerMap) {
         var result = [], tmp;
