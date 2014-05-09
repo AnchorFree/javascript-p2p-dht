@@ -25,7 +25,7 @@ var p2pEngine = new P2P.Protocol({
 });
 
 p2pEngine.on('peer_discovered', function(e) {
-    if (e.connectedPeerCount < 3) {
+    if (e.connectedPeerCount < 3 && !p2pEngine.connectedPeers.hasOwnProperty(e.key)) {
         connectToPeer(e.key);
     }
 });
@@ -194,17 +194,17 @@ function maintenance() {
      container.append(cache);
  }, 1000);
 
-/*
- setInterval(function() {
- var container = $('#peers tbody'), cache = [];
 
- container.empty();
+setInterval(function() {
+    var container = $('#peers tbody'), cache = [];
 
- for (var key in peerMap.verifiedPeers) {
- if (peerMap.verifiedPeers.hasOwnProperty(key)) {
- cache.push('<tr><td>' + peerMap.verifiedPeers[key].peerId + '</td><td>' + key + '</td></tr>');
- }
- }
+    container.empty();
 
- container.append(cache);
- }, 1000);*/
+    for (var key in p2pEngine.connectedPeers) {
+        if (p2pEngine.connectedPeers.hasOwnProperty(key)) {
+            cache.push('<tr><td>' + p2pEngine.connectedPeers[key].peerId + '</td></tr>');
+        }
+    }
+
+    container.append(cache);
+}, 1000);

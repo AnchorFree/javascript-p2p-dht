@@ -5,9 +5,9 @@
 
 (function(exports) {
     // NOTE: Make sure Util is loaded before PeerStatistics
-    
+
     exports.P2P.Util.namespace('P2P.PeerStatistics');
-    
+
     // Create a new PeerStatistics object and optionally assign it a peerId
     // This object is used to keep track of peers in an encapsulated way
 	exports.P2P.PeerStatistics = function(peerId)
@@ -35,7 +35,7 @@
         this._failed = this._failed + 1;
     };
 
-    // The number of ticks between the first interaction with the peer
+    // The number of milliseconds between the first interaction with the peer
     // and the latest successful interaction with a peer.
     exports.P2P.PeerStatistics.onlineTime = function()
     {

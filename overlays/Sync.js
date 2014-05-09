@@ -109,7 +109,7 @@
     /**
      * Add data to this node
      *
-     * key is an optional parameter that should be a UUID v4
+     * key (string) is an optional parameter. A UUID will be generated if a key is not provided.
      */
     exports.P2P.Overlays.Sync.prototype.addData = function(data, key) {
         this.dataCache[key || uuid.v4()] = data;
