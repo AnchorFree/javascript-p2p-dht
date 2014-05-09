@@ -1,6 +1,6 @@
-var peerTracker = new P2P.PeerMap('TRACKER');
+var peerTracker = [];
 
-var peer = new Peer('TRACKER', {
+var peer = new Peer('TRACKER1', {
     key: 'gm6cty1w0ptrcnmi',
 
     // Set highest debug level (log everything!).
@@ -16,13 +16,22 @@ var peer = new Peer('TRACKER', {
 peer.on('connection', function(conn) {
     P2P.Util.log('Connection established from: ' + conn.peer);
 
-    peerTracker.peerFound(conn.metadata.id, undefined, conn.peer);
+    peerTracker.push({ pid: conn.peer, ttl: 3 });
 
     conn.on('data', function(data) {
         if (data === 'bootstrap') {
             P2P.Util.log(conn.peer + ' : request bootstrap');
+            var list = [];
 
-            conn.send(peerTracker.nearPeers(conn.peer, 3));
+            for(var i=0,j=peerTracker.length>3 ? 3 : peerTracker.length; i<j; i++){
+                peerTracker[i].ttl = peerTracker[i].ttl - 1;
+
+                if (peerTracker[i].ttl > 0) {
+                    list.push(peerTracker[i].pid);
+                }
+            }
+
+            conn.send(list);
         }
     });
 });

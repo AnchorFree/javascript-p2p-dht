@@ -10,13 +10,23 @@
         <script type="text/javascript" src="p2p/Util.js"></script>
         <script type="text/javascript" src="p2p/PeerStatistics.js"></script>
         <script type="text/javascript" src="p2p/PeerMap.js"></script>
+        <script type="text/javascript" src="p2p/Protocol.js"></script>
+        <script type="text/javascript" src="overlays/Sync.js"></script>
         <script src="Peer.js" type="text/javascript"></script>
 </script>
     </head>
     <body>
+    	<div>
+    		<ul style="display:inline;list-style-type: none;padding-right:10px;">
+    			<li><a title="Start P2P">Start P2P</a></li>
+    			<li><a title="Start P2P with Sync overlay">Start P2P w/Sync</a></li>
+    			<li><a title="Click to create 100 items which will be distributed as a demo." href="#" onclick="for (var i=0;i<100;i++) { put(uuid.v4(), 'item ' + i )}; return false;">+ 100 items</a></li>
+
+    		</ul>
+    	</div>
         <div style="width:100%;margin:0;padding:0;vertical-align: top;">
             <div id="data" style="width:25%;display:inline-block;">
-                <h1>Data <a title="Click to create 100 items which will be distributed as a demo." href="#" onclick="for (var i=0;i<100;i++) { put(uuid.v4(), 'item ' + i )}; return false;">+ 100 items</a></h1>
+                <h1>Data</h1>
                 <table style="width:100%;border: 1px solid #000;">
                     <thead>
                         <th>Key</th>
