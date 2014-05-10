@@ -180,7 +180,7 @@ function maintenance() {
 
 //setInterval(maintenance, 10000);
 
- setInterval(function() {
+setInterval(function() {
      var container = $('#data tbody'), cache = [];
 
      container.empty();

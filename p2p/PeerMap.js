@@ -7,24 +7,20 @@
     // NOTE: Make sure Util is loaded before PeerMap
     exports.P2P.Util.namespace('P2P.PeerMap');
 
-    /* Basic implementation of a p2p routing table
+    /* Basic implementation of a p2p routing table.
+     *
+     * The routing information is stored in localStorage so that it can be used to bootstrap on the next connection.
      */
     exports.P2P.PeerMap = function(selfId, config) {
         this.verifiedPeers = {};
         this.overflowPeers = {};
-        this.offlineMap = {};
-        this.shutdownMap = {};
-        this.exceptionMap = {};
 
         this.config = exports.P2P.Util.extend({
             bagSizeVerified : 10,
             bagSizeOverflow : 10,
-            offlineTimeout : 60,
-            shutdownTimeout : 20,
-            exceptionTimeout : 120,
-            offlineCount : 3,
             peerVerification : true,
             defaultNearPeers : 3,
+            maxFailedCount: 3,
 
             /* When overridden, this function allows the PeerMap to filter peers as they are discovered.
              * Override this with your own function that returns true (to filter a peer out) and false to keep a peer.
@@ -51,17 +47,22 @@
         }, config);
 
         this.selfId = selfId || '';
+
+        if (this.selfId + '.peerMap' in localStorage) {
+            var tmp = JSON.parse(localStorage.getItem(this.selfId + '.peerMap'));
+
+            if (typeof tmp === 'object' && typeof tmp.verifiedPeers === 'object' && typeof tmp.overflowPeers === 'object') {
+                this.verifiedPeers = tmp.verifiedPeers;
+                this.overflowPeers = tmp.overflowPeers;
+            }
+        }
     };
 
-    /* Adds a neighbor to the neighbor list. If the bag is full, the id zero or the same as our id, the neighbor is not added.
+    /**
+     * Adds a neighbor to the neighbor list. If the bag is full, the id zero or the same as our id, the neighbor is not added.
      */
-    exports.P2P.PeerMap.prototype.peerFound = function(peerId, referrer, connId) {
+    exports.P2P.PeerMap.prototype.onPeerFound = function(peerId, referrer, connId) {
         var firstHand = typeof referrer === 'undefined' || !this.config.peerVerification, secondHand = peerId == referrer, thirdHand = !firstHand && !secondHand, stat;
-
-        if (firstHand) {
-            delete this.offlineMap[peerId];
-            delete this.shutdownMap[peerId];
-        }
 
         // Do not add zero, myself or banned Ids
         if (peerId == 0 || peerId == this.selfId || this.config.peerFilter(this.selfId)) {
@@ -107,11 +108,14 @@
 
             exports.P2P.Util.log('PeerTracker added peer ' + peerId + ' reason : overflow candidate');
         }
+
+        // Dump state to storage
+        localStorage.setItem(this.selfId + '.peerMap', JSON.stringify({ verifiedPeers: this.verifiedPeers, overflowPeers: this.overflowPeers }));
     };
 
     // Remove a peer from the list. In order to not reappear, the node is put for a certain time in a cache list to keep the node removed.
     // Valid reasons are Timeout, ProbablyOffline, Shutdown, Exception
-    exports.P2P.PeerMap.prototype.peerFailed = function(peerId, reason) {
+    exports.P2P.PeerMap.prototype.onPeerFailed = function(peerId) {
         // Do not remove zero or myself
         if (peerId == 0 || peerId == this.selfId) {
             exports.P2P.Util.log('PeerTracker failed to remove peer ' + peerId + ' for rule: Do not remove zero or myself');
@@ -121,39 +125,31 @@
 
         var stat = this.verifiedPeers[peerId] || this.overflowPeers[peerId] || new PeerStatistics();
 
-        if (reason !== 'Timeout') {
-            // Do not add Timeouts to any maps, just increment the failed counter
-
-            if (reason === 'ProbablyOffline') {
-                // Add to the Offline map
-                this.offlineMap[peerId] = stat;
-            } else if (reason === 'Shutdown') {
-                // Add to the Shutdown map
-                this.shutdownMap[peerId] = stat;
-            } else {
-                // reason is exception
-                this.exceptionMap[peerId] = stat;
-            }
-
-            return;
-        }
-
         // Increment failed counter
         stat.failed();
 
-        // If the failed counter is past the configured thresholds, remove this peer from the verified and overflow peers
-        if (stat._failed >= this.config.offlineCount) {
+        // Place this peer back on the overflow list
+        if (this.verifiedPeers.hasOwnProperty(peerId)) {
+            this.overflowPeers[peerId] = this.verifiedPeers[peerId];
             delete this.verifiedPeers[peerId];
+        }
+
+        // If the failed counter is past the configured thresholds, remove this peer from the verified and overflow peers
+        if (stat._failed >= this.config.maxFailedCount) {
             delete this.overflowPeers[peerId];
         }
+
+        // Dump state to storage
+        localStorage.setItem(this.selfId + '.peerMap', JSON.stringify({ verifiedPeers: this.verifiedPeers, overflowPeers: this.overflowPeers }));
     };
 
     /* Return peers that are closest to the peerId that is provided.
-     * * peerId - return peers that are closest to this uuid
-     * * atLeast - (optional) try to get this number of peers in the returned list
-     * ** NOTE: The result might be less peers than requested
-     * ** If there are not enough peers that are verified to fulfill the request, pull peers from overflow list as well
-     * * peerMap - (optional) which peermap contains the list of peers to search. Defaults to verified and overflow
+     *
+     * peerId - return peers that are closest to this uuid
+     * atLeast - (optional) try to get this number of peers in the returned list
+     * NOTE: The result might be less peers than requested
+     * If there are not enough peers that are verified to fulfill the request, pull peers from overflow list as well
+     * peerMap - (optional) which peermap contains the list of peers to search. Defaults to verified and overflow
      */
     exports.P2P.PeerMap.prototype.nearPeers = function(peerId, atLeast, peerMap) {
         var result = [], tmp;
@@ -191,7 +187,8 @@
         return result;
     };
 
-    /* Returns the nearest peer to the specified peerId.
+    /**
+     * Returns the nearest peer to the specified peerId.
      */
     exports.P2P.PeerMap.prototype.nearestPeer = function(peerId, peerMap) {
         var result = [], tmp;
@@ -218,7 +215,8 @@
         return result[0];
     };
 
-    /* Get the number of the peers in the verified map.
+    /**
+     * Get the number of the peers in the verified map.
      */
     exports.P2P.PeerMap.prototype.size = function() {
         return Object.keys(this.verifiedPeers).reduce(function(previousValue, currentValue, index, array) {
