@@ -1,0 +1,24 @@
+<div class="inner center-block">
+    <h1 class="cover-heading">Let's get started</h1>
+    <p class="lead">
+        This demo shows how to use the libraries to create a JavaScript peer to peer network overlay.  First, enter a PeerJS API key to create a private P2P network then select one of the options on the left-hand menu to get started.
+    </p>
+    <form name="form" class="css-form" novalidate ng-hide="isPeerJSKeySet()">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter your PeerJS API Key" ng-model="peerJSKey" required>
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" ng-click="updatePeerJSKey()" ng-disabled="form.$invalid">
+                            Enable Demo
+                        </button></span>
+                </div>
+                <span class="help-block">(<a href="http://peerjs.com/peerserver">get one</a>) - or use <strong>gm6cty1w0ptrcnmi</strong> to test drive the demo</span>
+            </div>
+        </div>
+    </form>
+    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+    <p ng-show="isPeerJSKeySet()">
+        <small class="text-muted">Using PeerJS key: <strong>{{peerJSKey}}</strong></small>
+    </p>
+</div>

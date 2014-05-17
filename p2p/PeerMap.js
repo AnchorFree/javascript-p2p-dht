@@ -113,8 +113,11 @@
         localStorage.setItem(this.selfId + '.peerMap', JSON.stringify({ verifiedPeers: this.verifiedPeers, overflowPeers: this.overflowPeers }));
     };
 
-    // Remove a peer from the list. In order to not reappear, the node is put for a certain time in a cache list to keep the node removed.
-    // Valid reasons are Timeout, ProbablyOffline, Shutdown, Exception
+    /**
+     * Remove a peer from the list. In order to not reappear, the node is put for a certain time in a cache list to keep the node removed.
+     *
+     * @param {String} peerID ID of the peer that has been disconnected
+     */
     exports.P2P.PeerMap.prototype.onPeerFailed = function(peerId) {
         // Do not remove zero or myself
         if (peerId == 0 || peerId == this.selfId) {

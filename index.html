@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+		<title> JavaScript P2P - Proof of Concept </title>
+
+		<!-- Bootstrap compiled and minified CSS -->
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="ui/css/dashboard.css">
+	</head>
+	<body>
+		<!-- Header -->
+		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">JavaScript P2P Demo</a>
+				</div>
+				<div class="navbar-collapse collapse">
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a href="#">Dashboard</a>
+						</li>
+						<li>
+							<a href="#">Settings</a>
+						</li>
+						<li>
+							<a href="#">GitHub</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-3 col-md-2 sidebar" ng-controller="SidebarController">
+					<ul class="nav nav-sidebar">
+						<li ng-class="{ active: isActive('/dashboard')}">
+							<a href="#/dashboard">Dashboard</a>
+						</li>
+						<li ng-class="{ active: isActive('/p2p/sync'), disabled: !peerJsKeySet()}">
+							<a ng-href="{{navigateIfPeerJsKeySet('#/p2p/sync')}}">Sync</a>
+						</li>
+						<li ng-class="{ active: isActive('/p2p/dht'), disabled: !peerJsKeySet()}">
+							<a ng-href="{{navigateIfPeerJsKeySet('#/p2p/dht')}}">Distributed Hash Table</a>
+						</li>
+					</ul>
+				</div>
+				<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" ng-controller="P2PCtrl">
+					<div ng-view></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- P2P Specific libraries -->
+		<script type="text/javascript" src="http://cdn.peerjs.com/0.3.8/peer.js"></script>
+		<script type="text/javascript" src="lib/Uuid.js"></script>
+
+		<!-- P2P Specific code -->
+		<script type="text/javascript" src="p2p/Util.js"></script>
+		<script type="text/javascript" src="p2p/PeerStatistics.js"></script>
+		<script type="text/javascript" src="p2p/PeerMap.js"></script>
+		<script type="text/javascript" src="p2p/Protocol.js"></script>
+		<script type="text/javascript" src="overlays/Sync.js"></script>
+
+		<!-- UI Code -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-route.js"></script>
+		<script type="text/javascript" src="ui/js/ui-bootstrap-tpls-0.11.0.min.js"></script>
+		<script type="text/javascript" src="ui/js/app.js"></script>
+	</body>
+</html>
