@@ -32,7 +32,7 @@ p2pEngine.on('peer_discovered', function(e) {
 
 var syncEngine = new P2P.Overlays.Sync(p2pEngine);
 
-var tracker = peer.connect('TRACKER1');
+var tracker = peer.connect('TRACKER');
 
 peer.on('connection', function(dataConnection) {
     dataConnection.on('open', function() {

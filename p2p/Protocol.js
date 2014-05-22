@@ -4,6 +4,8 @@
 // Read [annotated source code](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/p2p/Protocol.js)
 
 (function(exports) {
+    'use strict';
+
     // NOTE: Make sure Util is loaded before PeerMap
     exports.P2P.Util.namespace('P2P.Protocol');
 
@@ -29,8 +31,8 @@
         setInterval(function() {
             for(var i=0,keys=Object.keys(this.connectedPeers),j=keys.length; i<j; i++){
                 this.emit('tick', { send: this.connectedPeers[keys[i]].send });
-            };
-        }.bind(this), 1000);
+            }
+        }.bind(this), 5000);
     };
 
     exports.P2P.Util.inherits(exports.P2P.Protocol, exports.P2P.Util.EventEmitter);
@@ -78,8 +80,9 @@
     exports.P2P.Protocol.prototype.raiseIncomingData = function(pid, data) {
         var e = {};
 
-        if (!this.connectedPeers.hasOwnProperty(pid))
+        if (!this.connectedPeers.hasOwnProperty(pid)) {
             return;
+        }
 
         // This peer is still healthy
         this.connectedPeers[pid].successfullyChecked();
@@ -97,9 +100,9 @@
 
             // Respond to pong (which confirms communication) by announcing the peer
             if (data.q === 'pong') {
-                for (var peer in this.connectedPeers) {
-                    if (peer !== pid && this.connectedPeers.hasOwnProperty(peer)) {
-                        this.connectedPeers[peer].send({
+                for (var peer1 in this.connectedPeers) {
+                    if (peer1 !== pid && this.connectedPeers.hasOwnProperty(peer1)) {
+                        this.connectedPeers[peer1].send({
                             q : 'announce_peer',
                             id : data.id,
                             conn : pid,
@@ -111,9 +114,9 @@
 
             if (data.q === 'announce_peer') {
                 if (data.ttl > 0) {
-                    for (var peer in this.connectedPeers) {
-                        if (peer !== pid && this.connectedPeers.hasOwnProperty(peer)) {
-                            this.connectedPeers[peer].send({
+                    for (var peer2 in this.connectedPeers) {
+                        if (peer2 !== pid && this.connectedPeers.hasOwnProperty(peer2)) {
+                            this.connectedPeers[peer2].send({
                                 q : 'announce_peer',
                                 id : data.id,
                                 conn : data.conn,
@@ -151,8 +154,9 @@
     exports.P2P.Protocol.prototype.raiseDropConnection = function(pid) {
         var e = {};
 
-        if (!this.connectedPeers.hasOwnProperty(pid))
+        if (!this.connectedPeers.hasOwnProperty(pid)) {
             return;
+        }
 
         // pid should be a string
         e.pid = typeof pid === 'string' ? e.pid = pid : '';

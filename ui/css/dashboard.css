@@ -101,3 +101,172 @@ body {
  * Fix required by UI Bootstrap
  */
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+/*
+ * Circle statistics styles
+ */
+.circleStats {
+    text-align: center;
+    position: relative
+}
+
+.circleStatsItem {
+    position: relative;
+    background: rgba(255,255,255,0.7);
+    -webkit-box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2),0 0 0 4px rgba(0,0,0,0.1);
+    -moz-box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2),0 0 0 4px rgba(0,0,0,0.1);
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.2),0 0 0 4px rgba(0,0,0,0.1);
+    -webkit-border-radius: 50em;
+    -moz-border-radius: 50em;
+    border-radius: 50em;
+    width: 120px;
+    height: 120px;
+    margin: 10px auto
+}
+
+.circleStatsItem i {
+    font-size: 30px;
+    position: absolute;
+    top: 30%;
+    margin-top: 0;
+    width: 100%;
+    text-align: center
+}
+
+.circleStatsItem input {
+    cursor: default;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    border: 0;
+    height: auto;
+    position: absolute;
+    top: 15px;
+    left: 120px;
+    padding: 5px 0!important;
+    border-color: rgba(0,0,0,0.8)
+}
+
+.circleStatsItem input:focus {
+    outline: 0;
+    outline: thin dotted 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none
+}
+
+.circleStatsItem .plus {
+    font-size: 16px;
+    position: absolute;
+    top: 55%;
+    margin-left: 30px
+}
+
+.circleStatsItem .percent {
+    font-size: 14px;
+    position: absolute;
+    top: 57%;
+    margin-left: 78px
+}
+
+.circleStatsItem.orange,.circleStatsItem.orange i {
+    color: #fa5833
+}
+
+.circleStatsItem.lightorange,.circleStatsItem.lightorange i {
+    color: #fabb3d
+}
+
+.circleStatsItem.blue,.circleStatsItem.blue i {
+    color: #38ade8
+}
+
+.circleStatsItem.green,.circleStatsItem.green i {
+    color: #bbe679
+}
+
+.circleStatsItem.yellow,.circleStatsItem.yellow i {
+    color: #e8e57a
+}
+
+.circleStatsItem.pink,.circleStatsItem.pink i {
+    color: #e42b75
+}
+
+.circleStatsItemBox {
+    position: relative;
+    background: #77c7ee;
+    width: 100%;
+    min-width: 130px;
+    height: 160px;
+    margin: 10px auto;
+    padding-top: 40px;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box
+}
+
+.circleStatsItemBox .header {
+    background: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.9);
+    width: 100%;
+    height: 20px;
+    padding: 5px 0;
+    position: absolute;
+    top: 0;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box
+}
+
+.circleStatsItemBox .footer {
+    background: rgba(0,0,0,0.1);
+    color: rgba(255,255,255,0.9);
+    width: 100%;
+    height: 20px;
+    padding: 5px 0;
+    position: absolute;
+    bottom: 0;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box
+}
+
+.circleStatsItemBox .footer .count {
+    font-size: 10px
+}
+
+.circleStatsItemBox .footer .value {
+    font-weight: bold
+}
+
+.circleStatsItemBox .percent {
+    font-size: 12px;
+    position: absolute;
+    top: 110px;
+    width: 100%;
+    left: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.9)
+}
+
+.circleStatsItemBox input {
+    cursor: default;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    border: 0;
+    height: auto;
+    position: absolute;
+    top: 30px;
+    padding: 5px 0!important;
+    border-color: rgba(0,0,0,0.8)
+}
+
+.circleStatsItemBox input:focus {
+    outline: 0;
+    outline: thin dotted 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none
+}

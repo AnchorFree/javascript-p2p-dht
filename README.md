@@ -3,20 +3,32 @@ javascript-p2p
 
 Experiment for building a JavaScript-based DHT for storage.
 
-Instructions
-------------
-1. Launch tracker.htm in a browser (Chrome 32+ or FF 29+)
-1. Launch one or more copies of peer.htm in a browser (Chrome 32+ or FF 29+) - (NOTE: can be launched on multiple computers)
-1. On any one of the peers, click the +100 items link to create random data and watch it propogate to other peers
-1. Open DevTools on any peers, run function get('uuid-here') to search the network for data belonging to that uuid
+### Run Demo
+Install http-server in npm:
+
+```
+$> npm install http-server -g
+```
+
+Run the server from the directory where index.html is located
+
+```
+$> http-server . 8080
+```
+
+Browse to [Demo](http://localhost:8080/index.html) and follow the instructions
 
 Documentation
 -------------
 
-P2P Framework
+Utility Classes
 * [PeerStatistics](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/p2p/PeerStatistics.js)
 * [PeerMap](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/p2p/PeerMap.js)
 * [Util](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/p2p/Util.js)
 
-DHT Framework
-* TBD
+P2P Network Framework
+* [Protocol](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/p2p/Protocol.js)
+
+P2P Overlays
+* [Sync](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/overlays/DHT.js)
+* DHT - Coming Soon
