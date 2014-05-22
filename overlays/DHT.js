@@ -1,4 +1,4 @@
-// Synchronized Overlay
+// Distributed Hash Table Overlay
 // ---------------------------------
 
 // Read [annotated source code](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/dht/DHT.js)

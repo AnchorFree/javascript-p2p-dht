@@ -1,21 +1,21 @@
-// Distributed Hash Table Overlay
+// Synchronized Overlay
 // ---------------------------------
 
 // Read [annotated source code](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/dht/DHT.js)
 
-(function(exports) {
+(function (exports) {
     'use strict';
 
-    // NOTE: Make sure Util is loaded before PeerMap
+    // NOTE: Make sure Util is loaded before P2P.Overlays.Sync
     exports.P2P.Util.namespace('P2P.Overlays.Sync');
 
     /**
-     * Create a Sync overlay on top of the peer 2 peer network.  This overlay is reposnible for distributing a set of information to all peers.
+     * Create a Sync overlay on top of the peer 2 peer network.  This overlay is responsible for distributing a set of information to all peers.
      *
      * protocol is expected to be an instance of P2P.Protocol
      * config is an optional parameter
      */
-    exports.P2P.Overlays.Sync = function(protocol, config) {
+    exports.P2P.Overlays.Sync = function (protocol, config) {
         if (!protocol instanceof exports.P2P.Protocol) {
             // Bail out if the protocol is not valid because this whole module is useless
             throw 'protocol must be an instance of P2P.Protocol';
@@ -24,43 +24,40 @@
         this.protocol = protocol;
 
         this.config = exports.P2P.Util.extend({
-            pid : this.protocol.pid || uuid.v4()
+            pid: this.protocol.pid || uuid.v4()
         }, config);
 
         this.pid = this.config.pid;
 
+        // Hashmap of keys and values that are being synchronized
         this.dataCache = {};
 
+        // Used to track dirty state (should be a timestamp until which time the state is considered dirty)
         this.dirtyUntil = 0;
 
-        this.protocol.on('tick', function(e) {
+        // Tick is fired at a regular interval by the underlying protocol. Use this tick to sync keys, if our state is dirty
+        this.protocol.on('tick', function (e) {
             if (new Date().getTime() < this.dirtyUntil) {
-                e.send({
-                    q : 'sync_keys',
-                    keys : Object.keys(this.dataCache)
-                });
+                e.send({ q: 'sync_keys', keys: Object.keys(this.dataCache) });
             }
         }.bind(this));
 
         /**
          * Handle new peer data events
          */
-        this.onData = function(e) {
+        this.onData = function (e) {
             var reply = [];
 
-            if ( typeof e.data === 'object' && e.data.hasOwnProperty('q')) {
+            if (typeof e.data === 'object' && e.data.hasOwnProperty('q')) {
                 // Initiate sync negotiation once a ping is detected
                 if (e.data.q === 'ping' || e.data.q === 'pong') {
-                    e.reply({
-                        q : 'sync_keys',
-                        keys : Object.keys(this.dataCache)
-                    });
+                    e.reply({ q: 'sync_keys', keys: Object.keys(this.dataCache) });
 
                     return;
                 }
 
                 // When a list of keys is received, check if we already have them all
-                // Get any missing keys
+                // Then, get any missing keys
                 if (e.data.q === 'sync_keys') {
                     for (var i = 0, j = e.data.keys.length; i < j; i++) {
                         if (!this.dataCache.hasOwnProperty(e.data.keys[i])) {
@@ -68,10 +65,7 @@
                         }
                     }
 
-                    e.reply({
-                        q : 'get_keys',
-                        keys : reply
-                    });
+                    e.reply({q: 'get_keys', keys: reply });
 
                     return;
                 }
@@ -84,10 +78,7 @@
                         }
                     }
 
-                    e.reply({
-                        q : 'set_keys',
-                        items : reply
-                    });
+                    e.reply({ q: 'set_keys', items: reply });
 
                     return;
                 }
@@ -95,7 +86,7 @@
                 if (e.data.q === 'set_keys') {
                     //TODO: Add verification method here. Either JWT-style signatures or WOT-style verification
 
-                    for(var k=0, l=e.data.items.length; k<l; k++){
+                    for (var k = 0, l = e.data.items.length; k < l; k++) {
                         this.dataCache[e.data.items[k].key] = e.data.items[k].value;
                     }
 
@@ -112,7 +103,7 @@
          *
          * key (string) is an optional parameter. A UUID will be generated if a key is not provided.
          */
-        this.addData = function(data, key) {
+        this.addData = function (data, key) {
             this.dataCache[key || uuid.v4()] = data;
 
             // Mark myself as dirty for 5 seconds so we can force a sync with other peers
