@@ -1,4 +1,4 @@
-// Synchronized Overlay
+// Distributed Hash Table Overlay
 // ---------------------------------
 
 // Read [annotated source code](http://www.explainjs.com/explain?src=https://raw.githubusercontent.com/AnchorFree/javascript-p2p-dht/master/dht/DHT.js)
@@ -6,11 +6,11 @@
 (function (exports) {
     'use strict';
 
-    // NOTE: Make sure Util is loaded before P2P.Overlays.Sync
+    // NOTE: Make sure Util is loaded before PeerMap
     exports.P2P.Util.namespace('P2P.Overlays.Sync');
 
     /**
-     * Create a Sync overlay on top of the peer 2 peer network.  This overlay is responsible for distributing a set of information to all peers.
+     * Create a Sync overlay on top of the peer 2 peer network.  This overlay is reposnible for distributing a set of information to all peers.
      *
      * protocol is expected to be an instance of P2P.Protocol
      * config is an optional parameter
@@ -29,18 +29,7 @@
 
         this.pid = this.config.pid;
 
-        // Hashmap of keys and values that are being synchronized
         this.dataCache = {};
-
-        // Used to track dirty state (should be a timestamp until which time the state is considered dirty)
-        this.dirtyUntil = 0;
-
-        // Tick is fired at a regular interval by the underlying protocol. Use this tick to sync keys, if our state is dirty
-        this.protocol.on('tick', function (e) {
-            if (new Date().getTime() < this.dirtyUntil) {
-                e.send({ q: 'sync_keys', keys: Object.keys(this.dataCache) });
-            }
-        }.bind(this));
 
         /**
          * Handle new peer data events
@@ -51,13 +40,16 @@
             if (typeof e.data === 'object' && e.data.hasOwnProperty('q')) {
                 // Initiate sync negotiation once a ping is detected
                 if (e.data.q === 'ping' || e.data.q === 'pong') {
-                    e.reply({ q: 'sync_keys', keys: Object.keys(this.dataCache) });
+                    e.reply({
+                        q: 'sync_keys',
+                        keys: Object.keys(this.dataCache)
+                    });
 
                     return;
                 }
 
                 // When a list of keys is received, check if we already have them all
-                // Then, get any missing keys
+                // Get any missing keys
                 if (e.data.q === 'sync_keys') {
                     for (var i = 0, j = e.data.keys.length; i < j; i++) {
                         if (!this.dataCache.hasOwnProperty(e.data.keys[i])) {
@@ -65,7 +57,12 @@
                         }
                     }
 
-                    e.reply({q: 'get_keys', keys: reply });
+                    if (reply.length > 0) {
+                        e.reply({
+                            q: 'get_keys',
+                            keys: reply
+                        });
+                    }
 
                     return;
                 }
@@ -78,7 +75,12 @@
                         }
                     }
 
-                    e.reply({ q: 'set_keys', items: reply });
+                    if (reply.length > 0) {
+                        e.reply({
+                            q: 'set_keys',
+                            items: reply
+                        });
+                    }
 
                     return;
                 }
@@ -90,8 +92,11 @@
                         this.dataCache[e.data.items[k].key] = e.data.items[k].value;
                     }
 
-                    // Mark myself as dirty for 60 seconds so we can force a sync with other peers
-                    this.dirtyUntil = new Date().getTime() + 1500;
+                    for (var t = 0, peer_keys = Object.keys(this.protocol.connectedPeers), u = peer_keys.length; t < u; t++) {
+                        if (e.data.pid !== peer_keys[t]) {
+                            this.protocol.connectedPeers[peer_keys[t]].send({q: "sync_keys", keys: Object.keys(this.dataCache)});
+                        }
+                    }
 
                     return;
                 }
@@ -104,14 +109,15 @@
          * key (string) is an optional parameter. A UUID will be generated if a key is not provided.
          */
         this.addData = function (data, key) {
-            this.dataCache[key || uuid.v4()] = data;
+            var sanitized_key = key || uuid.v4();
+            this.dataCache[sanitized_key] = data;
 
-            // Mark myself as dirty for 5 seconds so we can force a sync with other peers
-            this.dirtyUntil = new Date().getTime() + 7500;
+            for (var i = 0, keys = Object.keys(this.protocol.connectedPeers), j = keys.length; i < j; i++) {
+                this.protocol.connectedPeers[keys[i]].send({q: "sync_keys", keys: Object.keys(this.dataCache)});
+            }
         }.bind(this);
 
         // Wire up events to handle protocol communication
         this.protocol.on('data', this.onData.bind(this));
     };
 })(this);
-

@@ -26,13 +26,6 @@
 
         // Wire up events for the protocol
         exports.P2P.Util.EventEmitter.call(this);
-
-        // Set timer to send periodic messages to all hosts
-        setInterval(function() {
-            for(var i=0,keys=Object.keys(this.connectedPeers),j=keys.length; i<j; i++){
-                this.emit('tick', { send: this.connectedPeers[keys[i]].send });
-            }
-        }.bind(this), 5000);
     };
 
     exports.P2P.Util.inherits(exports.P2P.Protocol, exports.P2P.Util.EventEmitter);
@@ -115,7 +108,7 @@
             if (data.q === 'announce_peer') {
                 if (data.ttl > 0) {
                     for (var peer2 in this.connectedPeers) {
-                        if (peer2 !== pid && this.connectedPeers.hasOwnProperty(peer2)) {
+                        if (peer2 !== pid && peer2 !== data.id && this.connectedPeers.hasOwnProperty(peer2)) {
                             this.connectedPeers[peer2].send({
                                 q : 'announce_peer',
                                 id : data.id,
