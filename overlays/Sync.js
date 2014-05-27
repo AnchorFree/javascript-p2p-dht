@@ -92,9 +92,9 @@
                         this.dataCache[e.data.items[k].key] = e.data.items[k].value;
                     }
 
-                    for (var t = 0, peer_keys = Object.keys(this.protocol.connectedPeers), u = peer_keys.length; t < u; t++) {
-                        if (e.data.pid !== peer_keys[t]) {
-                            this.protocol.connectedPeers[peer_keys[t]].send({q: "sync_keys", keys: Object.keys(this.dataCache)});
+                    for (var t = 0, peerKeys = Object.keys(this.protocol.connectedPeers), u = peerKeys.length; t < u; t++) {
+                        if (e.data.pid !== peerKeys[t]) {
+                            this.protocol.connectedPeers[peerKeys[t]].send({q: 'sync_keys', keys: Object.keys(this.dataCache)});
                         }
                     }
 
@@ -109,11 +109,11 @@
          * key (string) is an optional parameter. A UUID will be generated if a key is not provided.
          */
         this.addData = function (data, key) {
-            var sanitized_key = key || uuid.v4();
-            this.dataCache[sanitized_key] = data;
+            var sanitizedKey = key || uuid.v4();
+            this.dataCache[sanitizedKey] = data;
 
             for (var i = 0, keys = Object.keys(this.protocol.connectedPeers), j = keys.length; i < j; i++) {
-                this.protocol.connectedPeers[keys[i]].send({q: "sync_keys", keys: Object.keys(this.dataCache)});
+                this.protocol.connectedPeers[keys[i]].send({q: 'sync_keys', keys: Object.keys(this.dataCache)});
             }
         }.bind(this);
 
