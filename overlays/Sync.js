@@ -112,9 +112,7 @@
             var sanitizedKey = key || uuid.v4();
             this.dataCache[sanitizedKey] = data;
 
-            for (var i = 0, keys = Object.keys(this.protocol.connectedPeers), j = keys.length; i < j; i++) {
-                this.protocol.connectedPeers[keys[i]].send({q: 'sync_keys', keys: Object.keys(this.dataCache)});
-            }
+            this.protocol.broadcast({q: 'sync_keys', keys: Object.keys(this.dataCache)});
         }.bind(this);
 
         // Wire up events to handle protocol communication

@@ -159,4 +159,17 @@
 
         delete this.connectedPeers[pid];
     };
+
+    /**
+     * Send a message to all currently connected peers
+     *
+     * msg is a string or JSON object that should be sent to all connected peers
+     */
+    exports.P2P.Protocol.prototype.broadcast = function(msg) {
+        for (var peer1 in this.connectedPeers) {
+            if (this.connectedPeers.hasOwnProperty(peer1)) {
+                this.connectedPeers[peer1].send(msg);
+            }
+        }
+    };
 })(this);

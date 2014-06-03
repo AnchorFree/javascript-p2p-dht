@@ -1,7 +1,66 @@
-<h1 class="cover-heading">Distributed Hash Table</h1>
+<h1 class="cover-heading">Sync</h1>
 <p class="lead">
-    This demo shows how to create a P2P network with data that is distributed throughout all nodes.
+    This demo shows how to create a P2P network with data that is copied to all nodes.
 </p>
 
-{{name}}
-DHT
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Connection Status - my P2P id (pid) is {{ pid() }}</h3>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-12">
+                <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-primary btn-lg" ng-click="connectToCloud()" ng-disabled="connectedToCloud()">
+                    <span class="glyphicon glyphicon-cloud-upload"></span> Connect to Cloud
+                </button>
+            </div>
+            <div class="col-sm-3 col-sm-offset-4">
+                Peers ({{peerCount}}):
+                <progressbar value="peerCount" max="3"></progressbar>
+            </div>
+            <div class="col-sm-3">
+                Syncing Data:
+                <progressbar value="0"></progressbar>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Synchronized Data</div>
+
+    <table class="table table-striped table-bordered box">
+        <thead>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="(key, value) in data">
+            <td style="width: 50%">{{key}}</td>
+            <td style="width: 50%">{{value}}</td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="2">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter new data value here..." ng-model="newData" required style="width: 400px;" />
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="addData()" ng-disabled="form.$invalid">
+                    Add
+                </button>
+            </span>
+                </div>
+                <button class="btn btn-default" ng-click="findData()">Find by Key</button>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>

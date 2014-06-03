@@ -108,7 +108,7 @@
         };
 
         $scope.addData = function () {
-            peerJS.addData($scope.newData);
+            peerJS.addSyncData($scope.newData);
 
             $scope.newData = '';
         };
@@ -117,11 +117,54 @@
             return peerJS.pid;
         };
 
-        $scope.data = peerJS.getData;
+        $scope.data = peerJS.syncData;
     }]);
 
-    app.controller('DHTCtrl', ['$scope', function ($scope) {
+    app.controller('DHTCtrl', ['$scope', 'peerJS', 'peerJSTracker', function ($scope, peerJS, peerJSTracker) {
         $scope.name = 'DHTCtrl';
+
+        // Initialize the P2P System
+        $scope.peerCount = 0;
+
+        $scope.newData = '';
+
+        $scope.$watch(function () { return peerJS.peerCount(); }, function (newVal) {
+            $scope.peerCount = newVal;
+        });
+
+        $scope.connectedToCloud = function () {
+            return peerJSTracker.connected();
+        };
+
+        $scope.connectToCloud = function () {
+            if (!peerJSTracker.connected()) {
+                peerJSTracker.bootstrap(peerJS.connect);
+            }
+        };
+
+        $scope.closeAlert = function (index) {
+            $scope.alerts.splice(index, 1);
+        };
+
+        $scope.addData = function () {
+            peerJS.addDHTData($scope.newData);
+
+            $scope.newData = '';
+        };
+
+        $scope.findData = function() {
+            var key = window.prompt('What key would you like to search for?');
+
+            if (key.length > 0) {
+                peerJS.getDHTData(key);
+            }
+        };
+
+        $scope.pid = function () {
+            return peerJS.pid;
+        };
+
+        $scope.data = peerJS.dhtData;
     }]);
 
     app.factory('peerJSTracker', ['$log', '$rootScope', 'peerJS', function ($log, $rootScope, peerJS) {
@@ -249,7 +292,8 @@
         });
 
         // Add the Sync overlay on top of the base P2P protocol
-        var syncEngine = new P2P.Overlays.Sync(p2pEngine);
+        var syncEngine = new P2P.Overlays.Sync(p2pEngine),
+            dhtEngine = new P2P.Overlays.DHT(p2pEngine);
 
         // Update UI every time the P2P.Protocol finishes processing incoming data
         p2pEngine.on('data', function () {
@@ -366,8 +410,11 @@
             peerCount: function () { return peerCount; },
             connect: connectToPeer,
             pid: myP2PId,
-            addData: syncEngine.addData,
-            getData: syncEngine.dataCache
+            addSyncData: syncEngine.addData,
+            syncData: syncEngine.dataCache,
+            dhtData: dhtEngine.dataCache,
+            addDHTData: dhtEngine.addData,
+            getDHTData: dhtEngine.findData
         };
     }]);
 })(angular, Peer, uuid, P2P);

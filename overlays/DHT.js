@@ -70,8 +70,10 @@
                         // TODO: Connect to peer
                     } else if (e.data.hasOwnProperty('data')) {
                         // TODO: Display data.data
+                        window.console.log('Data found: ' + e.data.data);
                     } else {
                         // TODO: Data not found in this path
+                        window.console.log('Data not found in this path');
                     }
 
                     return;
@@ -117,6 +119,7 @@
             }
 
             // TODO: Request this data from each peer
+            this.protocol.broadcast({ q: 'find_peer', id: key });
         };
 
         // Wire up events to handle protocol communication
